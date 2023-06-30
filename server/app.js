@@ -2,6 +2,7 @@ const express = require('express')
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+require('dotenv').config()
 
 const usersRoutes = require('./routes/users-routes')
 const pokemonRoutes = require('./routes/pokemon-routes')
@@ -39,10 +40,11 @@ app.use((error, req, res, next) => {
   res.json({ message: error.message || 'An unknown error occurred!' });
 })
 
+const PORT = process.env.PORT || 6001;
 mongoose
-    .connect('mongodb+srv://PeanutJam97:ShadowGuard1@cluster0.3rxwjtv.mongodb.net/PersonalProject?retryWrites=true&w=majority')
+    .connect(process.env.MONGO_URL)
     .then(() => {
-        app.listen(5000);
+        app.listen(PORT, () => console.log(`Server Port: ${PORT}`));
     })
     .catch(err => {
         console.log(err);
