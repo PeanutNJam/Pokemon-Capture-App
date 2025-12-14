@@ -1,0 +1,38 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: pokemon_auth
+      POSTGRES_USER: pokemon_user
+      POSTGRES_PASSWORD: pokemon_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  backend:
+    build: ./poke_project_backend/pokemon_backend
+    depends_on:
+      - postgres
+    environment:
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_DEFER_DATASOURCE_INITIALIZATION: "true"
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/pokemon_auth
+      SPRING_DATASOURCE_USERNAME: pokemon_user
+      SPRING_DATASOURCE_PASSWORD: pokemon_pass
+      APP_JWT_SECRET: a_really_long_random_secret_at_least_32_chars_1234567890
+      FRONTEND_ORIGIN: http://localhost:3000
+    ports:
+      - "8080:8080"
+
+  frontend:
+    build: ./poke_project_frontend
+    depends_on:
+      - backend
+    environment:
+      NEXT_PUBLIC_API_BASE: http://localhost:8080
+    ports:
+      - "3000:3000"
+
+volumes:
+  pgdata:

@@ -18,7 +18,13 @@ public class PokemonSeeder implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        if (repo.count() > 0) return;
+        // Don't call repo.count() here; table may not exist yet on first boot in Docker.
+        try {
+            // If table exists and has data, skip
+            if (repo.existsByNameIgnoreCase("Bulbasaur")) return;
+        } catch (Exception ignored) {
+            // table might not exist yet; proceed to seed after schema init
+        }
 
         repo.saveAll(List.of(
                 p("Bulbasaur", 45, 49, 49, "Grass"),
